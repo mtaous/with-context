@@ -1,0 +1,130 @@
+{
+  "sql_best_practices": {
+    "capitalization": "SQL keywords strictly UPPERCASE (SELECT, FROM, WHERE, INSERT, UPDATE, DELETE, INTO, INNER JOIN, LEFT JOIN, GROUP BY, ORDER BY, UNION ALL, COUNT, MAX, CASE, WHEN, AND, OR, ON, USING, RETURNING, PREPARE, DECLARE, EXECUTE, FOREACH, CURSOR, FOR). Table and column names lowercase.",
+    "formatting": "Multi-line SQL built via string concatenation with logical breaks at major clauses. Each major clause (SELECT, FROM, WHERE, JOIN, GROUP BY, UNION) starts on new line via string continuation. Indentation achieved through leading spaces in concatenated strings. Complex queries use subqueries with clear aliasing (t, r for derived tables).",
+    "indentation": "Nested query levels indented with additional spaces in string literals. Subquery SELECT indented 4+ spaces from parent. JOIN conditions aligned under JOIN keyword. WHERE conditions vertically aligned when multiple exist.",
+    "structure": "Prepared statements for reusable queries declared with PREPARE...FROM...DECLARE CURSOR pattern. Dynamic SQL built via LET l_sql = string concatenation. Simple queries use direct SELECT...INTO. Complex aggregation uses subqueries wrapped in outer SELECT with COUNT(*) or data retrieval.",
+    "use_of_where": "WHERE clauses always present in UPDATE/DELETE for safety. WHERE uses ? placeholders for parameterized queries with USING clause. Multiple conditions joined with AND/OR. WHERE filters on indexed columns (rin, pin, event_rtype, event_rin). Explicit NULL checks via IS NULL/IS NOT NULL.",
+    "join_style": "Explicit INNER JOIN and LEFT JOIN syntax (modern SQL-92 style). No comma-based joins. Table aliases mandatory in joins (ep1, ep2, mtm, pd1, pd2, ev1, ev2). ON conditions explicit and clear. LEFT JOIN used when optional relationships exist (private_data, master index tables).",
+    "dynamic_vs_static_sql": "Mix of both. Static SQL for simple CRUD (SELECT * INTO rec.* FROM table WHERE rin = ?). Dynamic SQL for complex queries built via string concatenation stored in l_sql variable then PREPARE/DECLARE. No SQL injection risk due to ? placeholders and USING clause.",
+    "select_patterns": "SELECT * INTO record.* for full record retrieval. SELECT specific_columns INTO variables for projections. SELECT COUNT(*) INTO l_count for existence checks. Subqueries use SELECT with column aliases. UNION ALL for combining event and master index queries.",
+    "update_patterns": "UPDATE table SET * = record.* WHERE rin = value for full record update. UPDATE table SET column = value WHERE conditions for partial updates. Always includes WHERE clause. Single table updates only - no multi-table updates observed.",
+    "delete_patterns": "DELETE FROM table WHERE rin = value pattern. Always explicit WHERE clause - no unqualified deletes. Used sparingly - soft deletes via status flags not observed in these files.",
+    "insert_patterns": "INSERT INTO table VALUES record.* for full record insert. No explicit column lists - relies on record structure matching table. No batch inserts - single row per INSERT statement. Serial/auto-increment handled via db_get_serial() after insert.",
+    "evidence": [
+      "assoc_util.4gl:46-102: Complex query with UPPERCASE keywords, subquery indentation, UNION ALL, LEFT JOIN",
+      "assoc_util.4gl:117: PREPARE assoc_eper_eper_stmt FROM l_sql; DECLARE assoc_eper_eper_csr CURSOR",
+      "assoc_util.4gl:121: FOREACH assoc_eper_eper_csr USING l_evt_person_rin, l_evt_person_rin, l_evt_person_rin, l_evt_person_rin INTO l_rec.*",
+      "assoc_idu.4gl:45: INSERT INTO eper_to_eper VALUES l_rec.*",
+      "assoc_idu.4gl:192: SELECT * INTO l_bi_rec.* FROM eper_to_eper WHERE rin = l_rec.rin",
+      "assoc_idu.4gl:193: UPDATE eper_to_eper SET * = l_rec.* WHERE rin = l_rec.rin",
+      "assoc_list.4gl:185-192: LET l_sql with string concatenation, ? placeholders",
+      "person_display_class.4gl: Multiple SELECT...INTO patterns with explicit column lists"
+    ]
+  },
+  "sql_in_functions": {
+    "location_in_function": "SQL appears throughout function body based on need. Cursor declarations at module level with lazy initialization via IF NOT m_init.cursor_name pattern. PREPARE/DECLARE in init_cursors() helper functions or inline before use. SELECT/INSERT/UPDATE/DELETE at point of need after variable setup. FOREACH loops after cursor declaration.",
+    "pattern_of_use": "Modular pattern: (1) Check if cursor initialized via m_init flags (2) PREPARE/DECLARE if needed (3) Execute via FOREACH...USING or EXECUTE...USING (4) Process results in loop or INTO variables (5) Check status codes after operations. Helper functions encapsulate cursor initialization. Direct SQL for simple single-row operations.",
+    "parameter_binding": "Positional binding with ? placeholders and USING clause. Parameters passed in same order as ? appears in query. FOREACH cursor_name USING param1, param2, param3 INTO record pattern. EXECUTE stmt USING params INTO variables for single-row results. Local variables preferred over globals for SQL parameters.",
+    "result_handling": "INTO clause binds results to local variables or record structures. FOREACH loops iterate cursor results. Status code checked via LET l_status = status after SELECT. COUNT(*) queries use INTO l_count. Single-row SELECT uses INTO record.* or INTO var1, var2. Results processed immediately - no result set buffering.",
+    "validation_before_sql": "Minimal validation observed. NULL checks via IS NULL before using as parameter. No input sanitization needed due to parameterized queries. Type safety via LIKE references ensures compatibility. Range checks not consistently applied before SQL execution.",
+    "use_of_helpers": "Extensive helper functions for cursor initialization (init_cursors()). Load helpers execute prepared cursors (load_smt, load_identif, load_phone_numbers). Save helpers wrap INSERT/UPDATE/DELETE with audit logging. No helper functions for query building - done inline via string concatenation.",
+    "evidence": [
+      "assoc_util.4gl:46-56: l_sql string built first, then PREPARE/DECLARE at lines 117-118",
+      "assoc_util.4gl:121-144: FOREACH loop with USING clause binding 4 parameters",
+      "assoc_idu.4gl:40-87: CASE statement routing to different INSERT statements, all use VALUES record.*",
+      "assoc_list.4gl:185-192: Query built inline in function, then PREPARE/DECLARE/FOREACH pattern",
+      "eper_data_class.4gl:89-113: init_cursors() helper prepares all module-level cursors with lazy loading",
+      "eper_data_class.4gl:478-489: SELECT * INTO l_eper_rec.* with status check at line 481"
+    ]
+  },
+  "transaction_rules": {
+    "begin_work_usage": "Explicit transaction control via CALL db_begin_work(). Transactions started at top of save/update/delete operations. IF NOT l_in_transaction guard allows nested transaction control - outer function manages transaction if TRUE, inner function manages if FALSE.",
+    "commit_usage": "CALL db_commit_work() after successful operations. Appears at end of save functions after all operations complete. Conditional commit: IF NOT l_in_transaction THEN CALL db_commit_work(). Allows transaction scope control from caller.",
+    "rollback_usage": "CALL db_rollback_work() in error handlers and ELSE blocks after failed operations. Appears after status checks indicate failure. Used with IF NOT l_in_transaction guard. WHENEVER ERROR handler may trigger implicit rollback but explicit rollback also coded.",
+    "transaction_scope": "Transaction scope determined by l_in_transaction BOOLEAN parameter pattern. When FALSE - function owns transaction (begin/commit/rollback). When TRUE - caller owns transaction (no begin/commit by function). Allows composition: outer save() with l_in_transaction=FALSE wraps multiple inner saves with l_in_transaction=TRUE.",
+    "error_handling_interaction": "WHENEVER ERROR RAISE set before transactional blocks. Errors caught, rollback called, then error propagated or returned via status code. Status checking after operations triggers conditional rollback. No automatic rollback - always explicit CALL db_rollback_work().",
+    "nested_transactions": "Not true nested transactions - controlled via l_in_transaction parameter pattern. Inner functions defer transaction control to outer when l_in_transaction=TRUE. Prevents nested BEGIN WORK calls. Single transaction encompasses multiple operations across function call stack.",
+    "evidence": [
+      "eper_data_class.4gl:586-589: IF NOT l_in_transaction THEN CALL db_begin_work() END IF",
+      "eper_data_class.4gl:638-643: IF NOT l_in_transaction THEN CALL db_commit_work() END IF, rollback in ELSE",
+      "eper_data_class.4gl:582-584: WHENEVER ERROR RAISE before save operations",
+      "eper_data_class.4gl:655-660: save functions called with l_in_transaction: TRUE",
+      "assoc_idu.4gl:40: WHENEVER ERROR RAISE before INSERT block",
+      "assoc_idu.4gl:87: WHENEVER ERROR STOP after operations complete"
+    ]
+  },
+  "sql_error_handling": {
+    "error_detection": "Multiple mechanisms: (1) LET l_status = status after SELECT (2) WHENEVER ERROR RAISE for critical operations (3) WHENEVER ERROR STOP as default mode (4) IF l_status != 0 checks after operations (5) Status returned from functions. No SQLCA direct access observed.",
+    "logging": "Minimal SQL error logging observed. DISPLAY statements for debug errors (eper_data_class.4gl:482). Error messages via fgl_winMessage() for user notification. Audit logging via al_audit_log() records operations but not SQL errors. No dedicated SQL error log table.",
+    "propagation": "Errors propagate via: (1) RETURN status_code from functions (2) WHENEVER ERROR RAISE causes exception propagation (3) CALL trap_app_fatal_error() terminates with message (4) Boolean return values (l_success) indicate operation outcome. Early RETURN on error prevents further execution.",
+    "retry_patterns": "No retry patterns observed in provided code. SQL errors cause immediate failure and propagation. No retry loops or exponential backoff. No transaction retry after deadlock.",
+    "status_checking": "Consistent pattern: LET l_status = status after SELECT, then IF l_status != 0 THEN handle error. Status checked immediately after database operations. Non-zero status triggers error path (return, display message, rollback). Zero status indicates success and continues execution.",
+    "evidence": [
+      "eper_data_class.4gl:479-486: SELECT with LET l_status = status, IF l_status != 0 THEN DISPLAY error and RETURN",
+      "eper_data_class.4gl:582: WHENEVER ERROR RAISE before critical insert/update block",
+      "eper_data_class.4gl:87: WHENEVER ERROR STOP after operations",
+      "assoc_idu.4gl:40-86: WHENEVER ERROR RAISE wrapping all INSERT operations",
+      "assoc_list.4gl: No status checking after cursors - relies on WHENEVER ERROR",
+      "assoc_util.4gl:121-144: FOREACH with no explicit error checking - relies on WHENEVER ERROR"
+    ]
+  },
+  "data_integrity_patterns": {
+    "manual_checks": "Application-level integrity checks: (1) COUNT(*) queries before INSERT to prevent duplicates (2) SELECT to verify existence before UPDATE (3) Conditional logic to determine INSERT vs UPDATE (4) Role number uniqueness checked via COUNT query (5) Foreign key existence verified via SELECT before linking.",
+    "constraints_handling": "No explicit constraint violation handling observed. Relies on database constraints to enforce integrity. WHENEVER ERROR catches constraint violations but no specific CONSTRAINT error parsing. Application logic prevents violations rather than catching them.",
+    "cleanup_logic": "Cleanup on merge/transfer operations via transfer_entity_person_details() function. UPDATE statements retarget foreign keys during merge. DELETE of merged entity after transfer. No cascading delete pattern - manual cleanup via multiple UPDATE statements. No orphan record cleanup observed.",
+    "multi_table_consistency": "Maintained via transaction scope and ordered operations. Related tables updated in sequence within same transaction. Audit logging in IDU modules ensures consistency between data and audit tables. Association propagation ensures event and master associations stay synchronized. No explicit two-phase commit.",
+    "evidence": [
+      "eper_data_class.4gl:737-760: set_valid_role_number() uses COUNT to detect conflicts, then SELECT MAX to find next available",
+      "assoc_list.4gl:914-922: SELECT COUNT to check existence before conditional INSERT",
+      "eper_data_class.4gl:814-906: transfer_entity_person_details() updates 13 tables to retarget foreign keys",
+      "assoc_idu.4gl:36-147: INSERT/UPDATE operations wrapped in single transaction with audit logging",
+      "assoc_idu.4gl:421-437: propogate_master_association() ensures event/master consistency"
+    ]
+  },
+  "sql_anti_patterns": {
+    "issues_detected": [
+      "SELECT * usage prevalent instead of explicit column lists - reduces maintainability and performance",
+      "No index hints or query optimization directives - relies entirely on database optimizer",
+      "Duplicate query patterns across functions - same subquery logic repeated multiple times",
+      "Complex nested subqueries with multiple UNION ALL - difficult to maintain and optimize",
+      "No query result caching - same complex queries may execute multiple times",
+      "Cursor declarations mixed with business logic - not centralized",
+      "No batch operations - single-row INSERT/UPDATE in loops",
+      "String concatenation for dynamic SQL - while safe with parameters, harder to read than query builder",
+      "Inconsistent NULL handling - some queries check IS NULL, others rely on database defaults",
+      "No query timeouts or resource limits specified",
+      "Global cursor state (m_init flags) - potential issues in concurrent scenarios",
+      "No prepared statement pooling or reuse across function calls"
+    ],
+    "locations": [
+      "eper_data_class.4gl:478: SELECT * INTO l_eper_rec.* - pulls all columns when subset might suffice",
+      "assoc_util.4gl:46-102: Extremely complex query with 4 UNION ALL branches - could be simplified",
+      "assoc_util.4gl:46-102: Query pattern duplicated at lines 117-182, 208-273, 308-373, 408-473, 508-573",
+      "assoc_idu.4gl:40-86: Long CASE with 6 branches each containing INSERT - could use table-driven approach",
+      "assoc_list.4gl:455-522: add_to_list() does SELECT COUNT, then load full object - inefficient",
+      "assoc_list.4gl:914-925: Loop with individual INSERT checks - should be bulk operation",
+      "eper_data_class.4gl:89-113: init_cursors() mixes cursor declarations with IF logic",
+      "person_display_class.4gl:244-261: Multiple separate SELECT queries in sequence - could join",
+      "assoc_idu.4gl:192-286: Duplicate CASE blocks for SELECT/UPDATE - code duplication",
+      "eper_data_class.4gl:814-906: 13 separate UPDATE statements - not batched"
+    ]
+  },
+  "sql_performance": {
+    "index_usage": "Implicit index usage via WHERE clauses on primary/foreign keys (rin, pin, zin, bin). Queries filter on event_rtype + event_rin (likely composite index). No explicit index hints. No CREATE INDEX statements visible. Assumes database has proper indexes on junction tables and foreign keys.",
+    "select_specific_fields": "Mixed practice. Many queries use SELECT * for convenience with RECORD LIKE table.* pattern. Some queries explicitly list columns for projections (COUNT, MAX, specific column subsets). Complex queries with subqueries use column aliases. Location queries SELECT specific address fields only.",
+    "avoid_select_star": "NOT consistently followed. SELECT * prevalent in: (1) Full record retrieval for INSERT/UPDATE (2) Cursor iteration (3) INTO record.* pattern. Explicit columns used for: (1) Aggregation queries (2) Specific field needs (3) Subquery projections. Performance trade-off accepted for code simplicity.",
+    "batching_patterns": "No batch operations observed. All INSERT/UPDATE/DELETE single-row operations. Arrays processed via FOR loops with individual SQL statements. No bulk INSERT...SELECT. No batch API usage. Each iteration executes separate statement - no prepare-once-execute-many pattern.",
+    "cursor_usage": "Cursors used appropriately for: (1) Iterating query results (2) Processing multiple rows (3) Lazy loading related data. Pattern: PREPARE, DECLARE, FOREACH...INTO, process in loop. Cursors lazy-initialized via module flags. No evidence of cursor leaks - FOREACH handles cursor lifecycle. No OPEN/FETCH/CLOSE - relies on FOREACH abstraction.",
+    "evidence": [
+      "assoc_util.4gl:46-102: WHERE filters on rin, pin, event_rtype, event_rin - indexed columns",
+      "eper_data_class.4gl:478: SELECT * INTO l_eper_rec.* - pulls full record",
+      "assoc_util.4gl:360-375: SELECT location, apartment, city, municipality, state, zip - explicit columns",
+      "assoc_list.4gl:914-925: FOR loop with individual INSERT - no batching",
+      "eper_data_class.4gl:424-427: FOREACH cursor pattern for iteration",
+      "assoc_idu.4gl:192-193: Single-row UPDATE in CASE statement - not batched",
+      "No evidence of: bulk operations, index hints, query result caching, prepared statement reuse"
+    ]
+  },
+  "notes": "Analysis based on 7 provided files with extensive SQL usage. Strong evidence for transaction patterns, error handling, and query structure conventions. Limited evidence for performance optimization strategies - appears to rely on database optimizer and proper indexing. No evidence of: stored procedures, triggers, CTEs, window functions, dynamic SQL injection prevention testing, query execution plan analysis, or database-specific optimizations. Codebase shows mature SQL practices for business application (proper parameterization, transaction control, error handling) but lacks advanced optimization patterns."
+}

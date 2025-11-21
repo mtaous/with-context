@@ -1,0 +1,946 @@
+[
+  {
+    "file": "ac_data_idu.4gl",
+    "language": "Genero 4GL",
+    "summary": "IDU module managing accident case data records; provides insert and update operations with record-level database management.",
+    "purpose": "Part of the IDU (Integrated Data Update) system; handles persistence of accident data updates.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "insert_record",
+        "args": ["l_rec"],
+        "summary": "Insert new accident data record into database",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      },
+      {
+        "name": "update_record",
+        "args": ["l_rec"],
+        "summary": "Update existing accident data record",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      }
+    ],
+    "dependencies": {
+      "imports": ["FGL", "util"],
+      "calls": ["INSERT", "UPDATE"],
+      "database_tables": ["ac_data"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["IDU", "Accident Case", "Entity", "Integrated Data Update"],
+    "complexity": {
+      "lines_of_code": 95,
+      "comment_ratio": "0%",
+      "estimated_difficulty": "low"
+    },
+    "keywords": ["FUNCTION", "RECORD", "INSERT", "UPDATE", "SQL"]
+  },
+  {
+    "file": "ac_entities_idu.4gl",
+    "language": "Genero 4GL",
+    "summary": "IDU module managing accident entity relationships; handles insertion and cascading deletion of entity associations.",
+    "purpose": "Manages accident-to-entity linkages in the IDU system; supports entity role assignments.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "insert_record",
+        "args": ["l_rec"],
+        "summary": "Insert new accident-entity relationship",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      },
+      {
+        "name": "delete_all_by_accident",
+        "args": ["l_ac_rin"],
+        "summary": "Delete all entities associated with accident",
+        "returns": "void",
+        "dependencies": ["cascade delete"]
+      },
+      {
+        "name": "delete_all_by_entity",
+        "args": ["l_ent_type", "l_ent_rin"],
+        "summary": "Delete entity associations by type and RIN",
+        "returns": "void",
+        "dependencies": ["cascade delete"]
+      }
+    ],
+    "dependencies": {
+      "imports": [],
+      "calls": ["DELETE", "INSERT"],
+      "database_tables": ["acs_eper_role", "acs_eveh_role"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["IDU", "Accident", "Entity", "Role", "RIN"],
+    "complexity": {
+      "lines_of_code": 54,
+      "comment_ratio": "0%",
+      "estimated_difficulty": "low"
+    },
+    "keywords": ["FUNCTION", "RECORD", "DELETE", "INSERT", "SQL"]
+  },
+  {
+    "file": "ac_linkage_idu.4gl",
+    "language": "Genero 4GL",
+    "summary": "IDU module managing accident linkage data; handles cross-entity and cross-event relationships.",
+    "purpose": "Maintains accident-level linkages between entities and events in the IDU system.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "insert_record",
+        "args": ["l_rec"],
+        "summary": "Insert new accident linkage record",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      },
+      {
+        "name": "delete_all_by_accident",
+        "args": ["l_ac_rin"],
+        "summary": "Delete all linkages for an accident",
+        "returns": "void",
+        "dependencies": ["cascade delete"]
+      },
+      {
+        "name": "delete_accident_linkage",
+        "args": ["l_ac_rin"],
+        "summary": "Delete specific accident linkage",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      },
+      {
+        "name": "delete_all_by_entity",
+        "args": ["l_ent_type", "l_ent_rin"],
+        "summary": "Delete linkages by entity type and RIN",
+        "returns": "void",
+        "dependencies": ["cascade delete"]
+      }
+    ],
+    "dependencies": {
+      "imports": [],
+      "calls": ["DELETE", "INSERT"],
+      "database_tables": ["acs_linkage", "acs_eveh_linkage", "acs_eper_linkage"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["IDU", "Accident", "Linkage", "Entity", "Event"],
+    "complexity": {
+      "lines_of_code": 72,
+      "comment_ratio": "0%",
+      "estimated_difficulty": "low"
+    },
+    "keywords": ["FUNCTION", "RECORD", "DELETE", "INSERT", "SQL"]
+  },
+  {
+    "file": "alias_business_idu.4gl",
+    "language": "Genero 4GL",
+    "summary": "IDU module managing business alias data; handles creation and updates of business entity aliases.",
+    "purpose": "Manages business alias relationships in the IDU system; supports alias persistence operations.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "insert_record",
+        "args": ["l_rec"],
+        "summary": "Insert new business alias record",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      },
+      {
+        "name": "update_record",
+        "args": ["l_rec"],
+        "summary": "Update existing business alias",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      }
+    ],
+    "dependencies": {
+      "imports": [],
+      "calls": ["INSERT", "UPDATE"],
+      "database_tables": ["alias_business"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["IDU", "Business", "Alias", "Entity", "Integrated Data Update"],
+    "complexity": {
+      "lines_of_code": 48,
+      "comment_ratio": "0%",
+      "estimated_difficulty": "low"
+    },
+    "keywords": ["FUNCTION", "RECORD", "INSERT", "UPDATE", "SQL"]
+  },
+  {
+    "file": "alias_person_idu.4gl",
+    "language": "Genero 4GL",
+    "summary": "IDU module managing person alias data; handles creation and updates of person entity aliases.",
+    "purpose": "Manages person alias relationships in the IDU system; supports person alias persistence.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "insert_record",
+        "args": ["l_rec"],
+        "summary": "Insert new person alias record",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      },
+      {
+        "name": "update_record",
+        "args": ["l_rec"],
+        "summary": "Update existing person alias",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      }
+    ],
+    "dependencies": {
+      "imports": [],
+      "calls": ["INSERT", "UPDATE"],
+      "database_tables": ["alias_person"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["IDU", "Person", "Alias", "Entity", "Integrated Data Update"],
+    "complexity": {
+      "lines_of_code": 45,
+      "comment_ratio": "0%",
+      "estimated_difficulty": "low"
+    },
+    "keywords": ["FUNCTION", "RECORD", "INSERT", "UPDATE", "SQL"]
+  },
+  {
+    "file": "assoc_idu.4gl",
+    "language": "Genero 4GL",
+    "summary": "IDU module managing entity associations; handles insertion of new associations between entities.",
+    "purpose": "Manages entity-to-entity associations in the IDU system; maintains referential integrity.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "insert_record",
+        "args": ["l_rec"],
+        "summary": "Insert new entity association record",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      }
+    ],
+    "dependencies": {
+      "imports": [],
+      "calls": ["INSERT"],
+      "database_tables": ["assoc"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["IDU", "Association", "Entity", "Relationship", "Integrated Data Update"],
+    "complexity": {
+      "lines_of_code": 32,
+      "comment_ratio": "0%",
+      "estimated_difficulty": "low"
+    },
+    "keywords": ["FUNCTION", "RECORD", "INSERT", "SQL"]
+  },
+  {
+    "file": "evt_business_idu.4gl",
+    "language": "Genero 4GL",
+    "summary": "IDU module managing business event data; handles event records related to business entities.",
+    "purpose": "Manages business events in the IDU system; links business entities to events.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "insert_record",
+        "args": ["l_rec"],
+        "summary": "Insert new business event record",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      },
+      {
+        "name": "update_record",
+        "args": ["l_rec"],
+        "summary": "Update existing business event",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      }
+    ],
+    "dependencies": {
+      "imports": [],
+      "calls": ["INSERT", "UPDATE"],
+      "database_tables": ["evt_business"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["IDU", "Event", "Business", "Entity", "Integrated Data Update"],
+    "complexity": {
+      "lines_of_code": 51,
+      "comment_ratio": "0%",
+      "estimated_difficulty": "low"
+    },
+    "keywords": ["FUNCTION", "RECORD", "INSERT", "UPDATE", "SQL"]
+  },
+  {
+    "file": "evt_details_idu.4gl",
+    "language": "Genero 4GL",
+    "summary": "IDU module managing event detail records; handles granular event data and transaction information.",
+    "purpose": "Manages detailed event records in the IDU system; supports event detail persistence.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "insert_record",
+        "args": ["l_rec"],
+        "summary": "Insert new event detail record",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      }
+    ],
+    "dependencies": {
+      "imports": [],
+      "calls": ["INSERT"],
+      "database_tables": ["evt_details"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["IDU", "Event", "Detail", "Transaction", "Integrated Data Update"],
+    "complexity": {
+      "lines_of_code": 31,
+      "comment_ratio": "0%",
+      "estimated_difficulty": "low"
+    },
+    "keywords": ["FUNCTION", "RECORD", "INSERT", "SQL"]
+  },
+  {
+    "file": "evt_location_idu.4gl",
+    "language": "Genero 4GL",
+    "summary": "IDU module managing event location data; handles geographic and location information for events.",
+    "purpose": "Manages event locations in the IDU system; maintains location-event relationships.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "insert_record",
+        "args": ["l_rec"],
+        "summary": "Insert new event location record",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      },
+      {
+        "name": "update_record",
+        "args": ["l_rec"],
+        "summary": "Update existing event location",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      }
+    ],
+    "dependencies": {
+      "imports": [],
+      "calls": ["INSERT", "UPDATE"],
+      "database_tables": ["evt_location"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["IDU", "Event", "Location", "Geography", "Integrated Data Update"],
+    "complexity": {
+      "lines_of_code": 43,
+      "comment_ratio": "0%",
+      "estimated_difficulty": "low"
+    },
+    "keywords": ["FUNCTION", "RECORD", "INSERT", "UPDATE", "SQL"]
+  },
+  {
+    "file": "evt_person_idu.4gl",
+    "language": "Genero 4GL",
+    "summary": "IDU module managing person event data; handles linking people to events.",
+    "purpose": "Manages person-event relationships in the IDU system; maintains event participation.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "insert_record",
+        "args": ["l_rec"],
+        "summary": "Insert new person event record",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      },
+      {
+        "name": "update_record",
+        "args": ["l_rec"],
+        "summary": "Update existing person event",
+        "returns": "void",
+        "dependencies": ["database operations"]
+      }
+    ],
+    "dependencies": {
+      "imports": [],
+      "calls": ["INSERT", "UPDATE"],
+      "database_tables": ["evt_person"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["IDU", "Event", "Person", "Entity", "Integrated Data Update"],
+    "complexity": {
+      "lines_of_code": 42,
+      "comment_ratio": "0%",
+      "estimated_difficulty": "low"
+    },
+    "keywords": ["FUNCTION", "RECORD", "INSERT", "UPDATE", "SQL"]
+  },
+  {
+    "file": "ac_class.4gl",
+    "language": "Genero 4GL",
+    "summary": "Object-oriented wrapper for accident case data; implements class-based interface for AC operations.",
+    "purpose": "Provides OOP interface to accident case functionality; encapsulates AC business logic.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "camelCase",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "create",
+        "args": [],
+        "summary": "Create new accident case instance",
+        "returns": "AC object",
+        "dependencies": ["constructor"]
+      },
+      {
+        "name": "load",
+        "args": ["id"],
+        "summary": "Load existing accident case by ID",
+        "returns": "AC object",
+        "dependencies": ["database lookup"]
+      },
+      {
+        "name": "save",
+        "args": [],
+        "summary": "Persist accident case data",
+        "returns": "boolean",
+        "dependencies": ["database write"]
+      }
+    ],
+    "dependencies": {
+      "imports": [],
+      "calls": ["database operations"],
+      "database_tables": ["accident_case"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["Class", "Object-Oriented", "Accident Case", "Entity"],
+    "complexity": {
+      "lines_of_code": 142,
+      "comment_ratio": "2.8%",
+      "estimated_difficulty": "medium"
+    },
+    "keywords": ["FUNCTION", "RECORD", "CLASS", "ARRAY"]
+  },
+  {
+    "file": "ac_mlib.4gl",
+    "language": "Genero 4GL",
+    "summary": "Maintenance library for accident case operations; provides utility functions for AC management.",
+    "purpose": "Implements utility functions for AC record maintenance and manipulation.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "maint_ac_lookup",
+        "args": ["p_ac_rin"],
+        "summary": "Lookup accident case by RIN",
+        "returns": "record",
+        "dependencies": ["database query"]
+      },
+      {
+        "name": "maint_ac_delete",
+        "args": ["p_ac_rin"],
+        "summary": "Delete accident case record",
+        "returns": "boolean",
+        "dependencies": ["cascade delete"]
+      }
+    ],
+    "dependencies": {
+      "imports": ["FGL"],
+      "calls": ["database operations"],
+      "database_tables": ["accident_case"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["Maintenance", "Library", "Accident Case", "RIN"],
+    "complexity": {
+      "lines_of_code": 187,
+      "comment_ratio": "1.6%",
+      "estimated_difficulty": "medium"
+    },
+    "keywords": ["FUNCTION", "RECORD", "PROCEDURE", "SQL"]
+  },
+  {
+    "file": "ac_util.4gl",
+    "language": "Genero 4GL",
+    "summary": "Utility functions for accident case operations; provides helper functions and data transformations.",
+    "purpose": "Supplies common utilities for AC-related operations across the system.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "validate_ac_data",
+        "args": ["l_rec"],
+        "summary": "Validate accident case record",
+        "returns": "boolean",
+        "dependencies": ["validation logic"]
+      },
+      {
+        "name": "format_ac_output",
+        "args": ["l_rec"],
+        "summary": "Format AC record for display",
+        "returns": "string",
+        "dependencies": ["formatting"]
+      }
+    ],
+    "dependencies": {
+      "imports": [],
+      "calls": ["validation", "formatting"],
+      "database_tables": []
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["Utility", "Accident Case", "Validation", "Formatting"],
+    "complexity": {
+      "lines_of_code": 156,
+      "comment_ratio": "1.9%",
+      "estimated_difficulty": "low"
+    },
+    "keywords": ["FUNCTION", "PROCEDURE", "RECORD"]
+  },
+  {
+    "file": "alias_business_mlib.4gl",
+    "language": "Genero 4GL",
+    "summary": "Maintenance library for business alias operations; provides utilities for business alias management.",
+    "purpose": "Implements maintenance and utility functions for business aliases.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "maint_alias_business_lookup",
+        "args": ["p_rin"],
+        "summary": "Lookup business alias by RIN",
+        "returns": "record",
+        "dependencies": ["database query"]
+      },
+      {
+        "name": "maint_alias_business_delete",
+        "args": ["p_rin"],
+        "summary": "Delete business alias record",
+        "returns": "boolean",
+        "dependencies": ["database delete"]
+      }
+    ],
+    "dependencies": {
+      "imports": ["FGL"],
+      "calls": ["database operations"],
+      "database_tables": ["alias_business"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["Maintenance", "Business", "Alias", "RIN"],
+    "complexity": {
+      "lines_of_code": 112,
+      "comment_ratio": "0.9%",
+      "estimated_difficulty": "low"
+    },
+    "keywords": ["FUNCTION", "PROCEDURE", "RECORD", "SQL"]
+  },
+  {
+    "file": "assoc_util.4gl",
+    "language": "Genero 4GL",
+    "summary": "Utility functions for association operations; provides helpers for entity association management.",
+    "purpose": "Supplies common utilities for association-related operations.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "get_associated_entities",
+        "args": ["p_entity_id"],
+        "summary": "Retrieve all associated entities",
+        "returns": "array",
+        "dependencies": ["database query"]
+      },
+      {
+        "name": "create_association",
+        "args": ["p_ent1", "p_ent2", "p_type"],
+        "summary": "Create new association between entities",
+        "returns": "boolean",
+        "dependencies": ["database insert"]
+      }
+    ],
+    "dependencies": {
+      "imports": [],
+      "calls": ["database operations"],
+      "database_tables": ["assoc", "association"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["Association", "Entity", "Relationship", "Link"],
+    "complexity": {
+      "lines_of_code": 143,
+      "comment_ratio": "1.4%",
+      "estimated_difficulty": "medium"
+    },
+    "keywords": ["FUNCTION", "PROCEDURE", "RECORD", "ARRAY"]
+  },
+  {
+    "file": "det_util.4gl",
+    "language": "Genero 4GL",
+    "summary": "Utility functions for detail record operations; provides helpers for detail management and processing.",
+    "purpose": "Supplies common utilities for detail-related operations across the system.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "process_detail_record",
+        "args": ["l_detail"],
+        "summary": "Process and validate detail record",
+        "returns": "boolean",
+        "dependencies": ["validation"]
+      },
+      {
+        "name": "extract_detail_info",
+        "args": ["l_detail"],
+        "summary": "Extract key information from detail",
+        "returns": "record",
+        "dependencies": ["data extraction"]
+      }
+    ],
+    "dependencies": {
+      "imports": [],
+      "calls": ["processing", "extraction"],
+      "database_tables": ["detail", "detail_info"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["Detail", "Record", "Processing", "Extraction"],
+    "complexity": {
+      "lines_of_code": 198,
+      "comment_ratio": "1.5%",
+      "estimated_difficulty": "medium"
+    },
+    "keywords": ["FUNCTION", "PROCEDURE", "RECORD", "ARRAY"]
+  },
+  {
+    "file": "enty_lib.4gl",
+    "language": "Genero 4GL",
+    "summary": "Entity library providing core functions for entity management and operations.",
+    "purpose": "Central repository for entity-related functions; implements entity CRUD and business logic.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "get_entity_by_id",
+        "args": ["p_ent_id"],
+        "summary": "Retrieve entity by unique ID",
+        "returns": "entity record",
+        "dependencies": ["database lookup"]
+      },
+      {
+        "name": "create_entity",
+        "args": ["p_data"],
+        "summary": "Create new entity record",
+        "returns": "entity ID",
+        "dependencies": ["database insert"]
+      },
+      {
+        "name": "update_entity",
+        "args": ["p_ent_id", "p_data"],
+        "summary": "Update entity record",
+        "returns": "boolean",
+        "dependencies": ["database update"]
+      }
+    ],
+    "dependencies": {
+      "imports": ["FGL"],
+      "calls": ["database operations"],
+      "database_tables": ["entity", "person", "business", "vehicle"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["Entity", "Record", "CRUD", "Database"],
+    "complexity": {
+      "lines_of_code": 234,
+      "comment_ratio": "2.1%",
+      "estimated_difficulty": "medium"
+    },
+    "keywords": ["FUNCTION", "PROCEDURE", "RECORD", "SQL"]
+  },
+  {
+    "file": "evt_class.4gl",
+    "language": "Genero 4GL",
+    "summary": "Object-oriented wrapper for event data; implements class-based interface for event operations.",
+    "purpose": "Provides OOP interface to event functionality; encapsulates event business logic.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "camelCase",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "create",
+        "args": [],
+        "summary": "Create new event instance",
+        "returns": "Event object",
+        "dependencies": ["constructor"]
+      },
+      {
+        "name": "load",
+        "args": ["id"],
+        "summary": "Load existing event by ID",
+        "returns": "Event object",
+        "dependencies": ["database lookup"]
+      },
+      {
+        "name": "save",
+        "args": [],
+        "summary": "Persist event data",
+        "returns": "boolean",
+        "dependencies": ["database write"]
+      }
+    ],
+    "dependencies": {
+      "imports": [],
+      "calls": ["database operations"],
+      "database_tables": ["event", "event_detail"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["Class", "Object-Oriented", "Event", "Entity"],
+    "complexity": {
+      "lines_of_code": 267,
+      "comment_ratio": "1.9%",
+      "estimated_difficulty": "medium"
+    },
+    "keywords": ["FUNCTION", "RECORD", "CLASS", "ARRAY"]
+  },
+  {
+    "file": "evt_lib.4gl",
+    "language": "Genero 4GL",
+    "summary": "Event library providing comprehensive functions for event management and querying.",
+    "purpose": "Central repository for event-related functions; implements event CRUD, queries, and business operations.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "get_event_by_id",
+        "args": ["p_evt_id"],
+        "summary": "Retrieve event by unique ID",
+        "returns": "event record",
+        "dependencies": ["database lookup"]
+      },
+      {
+        "name": "create_event",
+        "args": ["p_data"],
+        "summary": "Create new event record",
+        "returns": "event ID",
+        "dependencies": ["database insert"]
+      },
+      {
+        "name": "find_events",
+        "args": ["p_criteria"],
+        "summary": "Find events matching criteria",
+        "returns": "event array",
+        "dependencies": ["database query"]
+      },
+      {
+        "name": "delete_event",
+        "args": ["p_evt_id"],
+        "summary": "Delete event and related records",
+        "returns": "boolean",
+        "dependencies": ["cascade delete"]
+      }
+    ],
+    "dependencies": {
+      "imports": ["FGL"],
+      "calls": ["database operations"],
+      "database_tables": ["event", "event_detail", "event_person", "event_business", "event_vehicle"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["Event", "Query", "CRUD", "Database", "Cascade"],
+    "complexity": {
+      "lines_of_code": 723,
+      "comment_ratio": "0.8%",
+      "estimated_difficulty": "high"
+    },
+    "keywords": ["FUNCTION", "PROCEDURE", "RECORD", "ARRAY", "SQL"]
+  },
+  {
+    "file": "det_xlib.4gl",
+    "language": "Genero 4GL",
+    "summary": "XML processing library for detail records; handles XML parsing and transformation of detail data.",
+    "purpose": "Provides XML serialization/deserialization for detail records; enables XML-based data exchange.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "process_xml_details",
+        "args": ["l_details", "l_jur", "l_show_trans"],
+        "summary": "Process detail records from XML",
+        "returns": "detail array",
+        "dependencies": ["XML parsing"]
+      },
+      {
+        "name": "process_detail_by_type",
+        "args": ["l_details", "detail_rt", "l_jur", "l_show_trans"],
+        "summary": "Process details by type classification",
+        "returns": "processed record",
+        "dependencies": ["type validation"]
+      }
+    ],
+    "dependencies": {
+      "imports": ["FGL"],
+      "calls": ["XML parsing", "detail processing"],
+      "database_tables": []
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["XML", "Detail", "Parser", "Serialization"],
+    "complexity": {
+      "lines_of_code": 157,
+      "comment_ratio": "0%",
+      "estimated_difficulty": "low"
+    },
+    "keywords": ["FUNCTION", "RECORD", "ARRAY", "XML"]
+  },
+  {
+    "file": "enty_xlib.4gl",
+    "language": "Genero 4GL",
+    "summary": "XML processing library for entity records; handles XML parsing and transformation of entity data.",
+    "purpose": "Provides XML serialization/deserialization for entity records; enables XML-based entity exchange.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "process_xml_people",
+        "args": ["l_per_rec", "l_show_trans"],
+        "summary": "Process person entity records from XML",
+        "returns": "person array",
+        "dependencies": ["XML parsing"]
+      },
+      {
+        "name": "process_xml_businesses",
+        "args": ["l_bus_recs", "l_show_trans"],
+        "summary": "Process business entity records from XML",
+        "returns": "business array",
+        "dependencies": ["XML parsing"]
+      },
+      {
+        "name": "process_xml_vehicles",
+        "args": ["l_veh_recs", "l_show_trans"],
+        "summary": "Process vehicle entity records from XML",
+        "returns": "vehicle array",
+        "dependencies": ["XML parsing"]
+      }
+    ],
+    "dependencies": {
+      "imports": ["FGL"],
+      "calls": ["XML parsing", "entity processing"],
+      "database_tables": []
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["XML", "Entity", "Person", "Business", "Vehicle", "Parser"],
+    "complexity": {
+      "lines_of_code": 199,
+      "comment_ratio": "2%",
+      "estimated_difficulty": "low"
+    },
+    "keywords": ["FUNCTION", "RECORD", "ARRAY", "XML"]
+  },
+  {
+    "file": "evt_xml.4gl",
+    "language": "Genero 4GL",
+    "summary": "XML processing library for event records; handles XML parsing and transformation of event data.",
+    "purpose": "Provides XML serialization/deserialization for event records; enables XML-based event exchange.",
+    "style": {
+      "indentation": "2 spaces",
+      "naming_convention": "snake_case",
+      "comment_style": "inline"
+    },
+    "functions": [
+      {
+        "name": "process_xml_evt_to_evt",
+        "args": ["evt_record", "l_rtype", "l_event_key", "show_trans"],
+        "summary": "Process event-to-event relationships from XML",
+        "returns": "relationship record",
+        "dependencies": ["XML parsing"]
+      }
+    ],
+    "dependencies": {
+      "imports": ["FGL"],
+      "calls": ["XML parsing", "event processing"],
+      "database_tables": ["event relationship"]
+    },
+    "todos": [],
+    "docstrings": [],
+    "glossary_terms": ["XML", "Event", "Relationship", "Parser", "Serialization"],
+    "complexity": {
+      "lines_of_code": 102,
+      "comment_ratio": "0%",
+      "estimated_difficulty": "low"
+    },
+    "keywords": ["FUNCTION", "RECORD", "ARRAY", "XML"]
+  }
+]

@@ -46,8 +46,8 @@ PUBLIC FUNCTION calculate_days_since_login(p_last_login DATETIME YEAR TO SECOND)
   
   LET l_current_date = CURRENT
   
-  -- Calculate difference in days
-  LET l_days_diff = (l_current_date - p_last_login) / INTERVAL(1) DAY TO DAY
+  -- Calculate difference in days using UNITS DAY syntax
+  LET l_days_diff = (l_current_date - p_last_login) UNITS DAY
   
   RETURN l_days_diff
 END FUNCTION
@@ -95,7 +95,8 @@ PUBLIC FUNCTION format_timestamp_for_log(p_timestamp DATETIME YEAR TO SECOND)
   IF p_timestamp IS NULL THEN
     LET l_formatted = "NULL"
   ELSE
-    LET l_formatted = p_timestamp
+    -- Explicit conversion using standard format
+    LET l_formatted = p_timestamp USING "YYYY-MM-DD HH24:MI:SS"
   END IF
   
   RETURN l_formatted

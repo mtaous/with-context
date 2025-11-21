@@ -72,7 +72,6 @@ PUBLIC FUNCTION load_user_last_login(p_user_id INTEGER)
   RETURNS DATETIME YEAR TO SECOND
   DEFINE l_last_login DATETIME YEAR TO SECOND
   DEFINE l_sql STRING
-  DEFINE l_status INTEGER
   
   -- Build SQL with MAX aggregation for last login
   -- Following sql_best_practices.json SELECT patterns
@@ -87,9 +86,8 @@ PUBLIC FUNCTION load_user_last_login(p_user_id INTEGER)
   PREPARE login_stmt FROM l_sql
   EXECUTE login_stmt USING p_user_id INTO l_last_login
   
-  -- Check status per sql_best_practices.json
-  LET l_status = status
-  IF l_status != 0 THEN
+  -- Check status immediately after SQL operation per Genero best practice
+  IF status != 0 THEN
     LET l_last_login = NULL
   END IF
   

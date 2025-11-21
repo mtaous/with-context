@@ -83,11 +83,11 @@ PUBLIC FUNCTION format_summary_report(p_summary t_activity_summary)
   DEFINE l_report STRING
   DEFINE l_oldest_str STRING
   
-  -- Format oldest login timestamp
+  -- Format oldest login timestamp with explicit conversion
   IF p_summary.oldest_last_login IS NULL THEN
     LET l_oldest_str = "N/A"
   ELSE
-    LET l_oldest_str = p_summary.oldest_last_login
+    LET l_oldest_str = p_summary.oldest_last_login USING "YYYY-MM-DD HH24:MI:SS"
   END IF
   
   -- Build formatted report
